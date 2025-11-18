@@ -63,7 +63,7 @@ def chat():
                 {"role": "system", "content": "You are a helpful, concise assistant. Respond naturally and keep replies under 200 words."}
             ] + chat_history
 
-            deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-35-turbo")  # Default deployment name
+            deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4.1")  # Updated default to your deployment
             response = client.chat.completions.create(
                 model=deployment_name,
                 messages=messages,
