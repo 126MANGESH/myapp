@@ -101,21 +101,22 @@
     async function sendMessage() {
       const text = input.value.trim();
       if (!text) return;
+
       addMessage("user", text);
       input.value = "";
 
       const res = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text }),   // IMPORTANT: matched backend
       });
+
       const data = await res.json();
       if (data.response) addMessage("assistant", data.response);
       else addMessage("assistant", "⚠️ Error: " + data.error);
     }
 
     async function resetChat() {
-      if (!confirm("Clear chat history?")) return;
       await fetch("/reset", { method: "POST" });
       messagesDiv.innerHTML = "";
     }
