@@ -37,7 +37,7 @@ COMPANY_NAME       = os.environ.get("COMPANY_NAME", "Sanghvi Movers Limited")
 PORT               = int(os.environ.get("PORT", 5000))
 
 # -------- LOCAL PDF PATH --------
-PDF_FOLDER_PATH = os.environ.get("PDF_FOLDER_PATH", "assets/Sanghvi Movers Limited")
+# PDF_FOLDER_PATH = os.environ.get("PDF_FOLDER_PATH", "assets/Sanghvi Movers Limited")  # Commented out to disable RAG/PDF loading
 
 GPT_CUTOFF_DATE    = "June 2024"
 EMBEDDING_MODEL    = "all-MiniLM-L6-v2"
@@ -172,120 +172,120 @@ def load_pdfs_from_local_folder():
     print("\n[RAG] ========== STARTING RAG INITIALIZATION ==========")
 
     # Check if path exists
-    pdf_path = Path(PDF_FOLDER_PATH)
+    # pdf_path = Path(PDF_FOLDER_PATH)  # Commented out to disable RAG/PDF loading
     
-    if not pdf_path.exists():
-        msg = f"❌ PDF folder not found: {pdf_path.absolute()}"
-        print(f"[RAG] {msg}")
-        rag_status["error_message"] = msg
-        rag_status["initialized"] = False
-        return False
+    # msg = f"❌ PDF folder not found: {pdf_path.absolute()}"  # Commented out to disable RAG/PDF loading
+    # print(f"[RAG] {msg}")
+    # rag_status["error_message"] = msg
+    # rag_status["initialized"] = False
+    # return False
 
-    print(f"[RAG] 📂 Looking for PDFs in: {pdf_path.absolute()}")
+    print(f"[RAG] 📂 Looking for PDFs in: Disabled (RAG commented out)")
 
     try:
         # Step 1: Find all PDF files
         print("[RAG] 📂 Searching for PDF files...")
-        pdf_files = list(pdf_path.glob("*.pdf"))
+        # pdf_files = list(pdf_path.glob("*.pdf"))  # Commented out to disable RAG/PDF loading
+        pdf_files = []  # Empty list to skip PDF loading
         pdf_files.sort()
         
         print(f"[RAG] Found {len(pdf_files)} PDF files")
         
         rag_status["pdf_count"] = len(pdf_files)
         
-        for pdf_file in pdf_files:
-            print(f"[RAG]   - {pdf_file.name} ({pdf_file.stat().st_size / 1024 / 1024:.2f} MB)")
+        # for pdf_file in pdf_files:  # Commented out to disable RAG/PDF loading
+        #     print(f"[RAG]   - {pdf_file.name} ({pdf_file.stat().st_size / 1024 / 1024:.2f} MB)")
 
         if len(pdf_files) == 0:
-            msg = f"⚠️ No PDF files found in {pdf_path}. Please add PDF files to continue."
+            msg = f"⚠️ No PDF files found (RAG disabled intentionally)."
             print(f"[RAG] {msg}")
             rag_status["error_message"] = msg
             rag_status["initialized"] = False
             # Still initialize embedder for future use
             print("[RAG] 🤖 Loading embedding model anyway...")
-            embedder = SentenceTransformer(EMBEDDING_MODEL)
+            # embedder = SentenceTransformer(EMBEDDING_MODEL)  # Commented out to fully disable embedding
             return False
 
         # Step 2: Initialize embedder
         print("[RAG] 🤖 Loading embedding model...")
-        embedder = SentenceTransformer(EMBEDDING_MODEL)
-        print("[RAG] ✅ Embedding model loaded")
+        # embedder = SentenceTransformer(EMBEDDING_MODEL)  # Commented out to fully disable embedding
+        # print("[RAG] ✅ Embedding model loaded")
 
         # Step 3: Extract text from PDFs
         print("[RAG] 📄 Extracting text from PDFs...")
         docs = []
         total_chunks_before = 0
         
-        for pdf_file in pdf_files:
-            try:
-                print(f"[RAG]   Reading {pdf_file.name}...")
-                
-                with open(pdf_file, "rb") as f:
-                    reader = PyPDF2.PdfReader(f)
-                    
-                    page_count = len(reader.pages)
-                    text = "\n".join((page.extract_text() or "") for page in reader.pages)
-                    
-                    print(f"[RAG]     - {page_count} pages, {len(text)} chars")
-                    
-                    ts = (
-                        DOCUMENT_TIMESTAMPS.get(pdf_file.name)
-                        or parse_timestamp_from_filename(pdf_file.name)
-                        or datetime.fromtimestamp(pdf_file.stat().st_mtime)
-                    )
+        # for pdf_file in pdf_files:  # Commented out to disable RAG/PDF loading
+        #     try:
+        #         print(f"[RAG]   Reading {pdf_file.name}...")
+        #         
+        #         with open(pdf_file, "rb") as f:
+        #             reader = PyPDF2.PdfReader(f)
+        #             
+        #             page_count = len(reader.pages)
+        #             text = "\n".join((page.extract_text() or "") for page in reader.pages)
+        #             
+        #             print(f"[RAG]     - {page_count} pages, {len(text)} chars")
+        #             
+        #             ts = (
+        #                 DOCUMENT_TIMESTAMPS.get(pdf_file.name)
+        #                 or parse_timestamp_from_filename(pdf_file.name)
+        #                 or datetime.fromtimestamp(pdf_file.stat().st_mtime)
+        #             )
 
-                    # Use smart chunking strategy
-                    chunks = smart_chunk_text(text, pdf_file.name)
-                    
-                    for chunk in chunks:
-                        docs.append({
-                            "text": chunk,
-                            "metadata": {
-                                "file": pdf_file.name,
-                                "timestamp": ts.isoformat()
-                            }
-                        })
-                    
-                    chunks_created = len(chunks)
-                    print(f"[RAG]     - Created {chunks_created} chunks")
-                    total_chunks_before += chunks_created
-                    
-            except Exception as e:
-                print(f"[RAG] ❌ Error reading {pdf_file.name}: {e}")
-                traceback.print_exc()
-                continue
+        #             # Use smart chunking strategy
+        #             chunks = smart_chunk_text(text, pdf_file.name)
+        #             
+        #             for chunk in chunks:
+        #                 docs.append({
+        #                     "text": chunk,
+        #                     "metadata": {
+        #                         "file": pdf_file.name,
+        #                         "timestamp": ts.isoformat()
+        #                     }
+        #                 })
+        #             
+        #             chunks_created = len(chunks)
+        #             print(f"[RAG]     - Created {chunks_created} chunks")
+        #             total_chunks_before += chunks_created
+        #             
+        #     except Exception as e:
+        #         print(f"[RAG] ❌ Error reading {pdf_file.name}: {e}")
+        #         traceback.print_exc()
+        #         continue
 
         if len(docs) == 0:
-            msg = "⚠️ No document chunks created from PDFs."
+            msg = "⚠️ No document chunks created from PDFs (RAG disabled)."
             print(f"[RAG] {msg}")
             rag_status["error_message"] = msg
             rag_status["initialized"] = False
             return False
 
-        print(f"[RAG] ✅ Total chunks created: {len(docs)}")
+        # print(f"[RAG] ✅ Total chunks created: {len(docs)}")
 
         # Step 4: Create embeddings
         print("[RAG] 🧮 Creating embeddings...")
-        texts = [d["text"] for d in docs]
-        embeddings = embedder.encode(texts, show_progress_bar=False).astype("float32")
-        print(f"[RAG] ✅ Embeddings created: {embeddings.shape}")
+        # texts = [d["text"] for d in docs]
+        # embeddings = embedder.encode(texts, show_progress_bar=False).astype("float32")
+        # print(f"[RAG] ✅ Embeddings created: {embeddings.shape}")
 
         # Step 5: Build FAISS index
         print("[RAG] 🔍 Building FAISS index...")
-        index = faiss.IndexFlatL2(embeddings.shape[1])
-        index.add(embeddings)
-        print(f"[RAG] ✅ FAISS index created with {index.ntotal} vectors")
+        # index = faiss.IndexFlatL2(embeddings.shape[1])
+        # index.add(embeddings)
+        # print(f"[RAG] ✅ FAISS index created with {index.ntotal} vectors")
 
         # Step 6: Assign globals
-        document_chunks = docs
-        vector_index = index
+        # document_chunks = docs
+        # vector_index = index
 
         rag_status["chunk_count"] = len(document_chunks)
         rag_status["initialized"] = True
         rag_status["error_message"] = None
 
-        print("[RAG] ========== RAG INITIALIZATION COMPLETE ==========")
-        print(f"[RAG] ✅ RAG is ready! {len(document_chunks)} chunks indexed from {len(pdf_files)} PDFs")
+        # print("[RAG] ========== RAG INITIALIZATION COMPLETE ==========")
+        # print(f"[RAG] ✅ RAG is ready! {len(document_chunks)} chunks indexed from {len(pdf_files)} PDFs")
         return True
 
     except Exception as e:
@@ -382,7 +382,7 @@ def chat():
             print("[CHAT] ⚠️ RAG not available, using general knowledge")
             sys = (
                 f"Financial analyst for {COMPANY_NAME}. "
-                f"Note: Document database is currently empty. "
+                f"Note: Document database is currently empty (RAG disabled). "
                 f"Provide general financial analysis based on your knowledge up to {GPT_CUTOFF_DATE}."
             )
             reply = ask_gpt(
@@ -438,7 +438,7 @@ def health():
         "embedder_loaded": embedder is not None,
         "pdf_count": rag_status["pdf_count"],
         "error": rag_status["error_message"],
-        "pdf_folder": str(Path(PDF_FOLDER_PATH).absolute())
+        # "pdf_folder": str(Path(PDF_FOLDER_PATH).absolute())  # Commented out to disable RAG/PDF reference
     }
     print(f"[HEALTH] {status}")
     return jsonify(status)
@@ -453,7 +453,7 @@ def debug_rag_status():
         "embedder_loaded": embedder is not None,
         "pdf_count": rag_status["pdf_count"],
         "error_message": rag_status["error_message"],
-        "pdf_folder": str(Path(PDF_FOLDER_PATH).absolute()),
+        # "pdf_folder": str(Path(PDF_FOLDER_PATH).absolute()),  # Commented out to disable RAG/PDF reference
         "sample_chunks": [
             {
                 "file": c["metadata"]["file"],
@@ -468,7 +468,8 @@ def debug_rag_status():
 def debug_reinit_rag():
     """Manually reinitialize RAG"""
     print("[DEBUG] Manual RAG reinitialization requested")
-    success = load_pdfs_from_local_folder()
+    # success = load_pdfs_from_local_folder()  # Commented out to disable RAG reinitialization
+    success = False
     return jsonify({
         "success": success,
         "status": rag_status
@@ -479,21 +480,21 @@ def debug_reinit_rag():
 def init_rag_on_startup():
     """Initialize RAG when app starts - CRITICAL FOR PRODUCTION"""
     print("\n" + "="*70)
-    print("🚀 SAGEALPHA.AI STARTUP - INITIALIZING RAG FROM LOCAL PDFS")
+    print("🚀 SAGEALPHA.AI STARTUP - SKIPPING RAG INITIALIZATION (DISABLED)")
     print("="*70 + "\n")
     
-    success = load_pdfs_from_local_folder()
+    # success = load_pdfs_from_local_folder()  # Commented out to disable RAG initialization
     
-    if success:
-        print("\n✅ RAG INITIALIZATION SUCCESSFUL")
-    else:
-        print(f"\n⚠️ RAG INITIALIZATION WARNING: {rag_status['error_message']}")
-        print(f"💡 Expected PDF folder: {Path(PDF_FOLDER_PATH).absolute()}")
+    # if success:
+    #     print("\n✅ RAG INITIALIZATION SUCCESSFUL")
+    # else:
+    #     print(f"\n⚠️ RAG INITIALIZATION WARNING: {rag_status['error_message']}")
+    #     print(f"💡 Expected PDF folder: {Path(PDF_FOLDER_PATH).absolute()}")
     
     print("="*70 + "\n")
 
 # Initialize RAG on app startup (works in both local and production)
-init_rag_on_startup()
+# init_rag_on_startup()  # Commented out to fully disable RAG on startup
 
 # -------------------- MAIN ENTRY POINT --------------------
 
